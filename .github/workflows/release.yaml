@@ -1,0 +1,38 @@
+name: release
+
+on:
+  release:
+    types: [ created ]
+
+jobs:
+  release-chart:
+    runs-on: ubuntu-latest
+    environment: 
+      name: build-env
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    name: release-chart
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 1
+
+      - name: Install Helm
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
+
+      - name: Package chart
+        run: helm package ./charts/sec-policies
+
+      - name: Login to GHCR
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io \
+            --username ${{ github.actor }} \
+            --password-stdin
+        
+      - name: Push chart
+        run: |
+          helm push sec-policies-*.tgz oci://ghcr.io/${{ github.repository_owner }}/charts

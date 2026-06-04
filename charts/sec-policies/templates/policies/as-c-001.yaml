@@ -1,0 +1,39 @@
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: "as-control-001-should-drop-all-capabilities"
+  labels:
+    controlId: "AS-C-001"
+  annotations:
+    controlUrl: ""
+    description: "Ensure all capabilities are dropped"
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods"]
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["deployments", "replicasets", "daemonsets", "statefulsets"]
+      - apiGroups: ["batch"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["jobs", "cronjobs"]
+  validations:
+    - expression: >
+        object.kind != 'Pod' || object.spec.containers.all(container, has(container.securityContext) && has(container.securityContext.capabilities) && has(container.securityContext.capabilities.drop) && container.securityContext.capabilities.drop.exists(c, c == 'ALL') )
+
+      message: "Pod has one or more containers without capabilities drop ALL!"
+    - expression: >
+        ['Deployment','ReplicaSet','DaemonSet','StatefulSet','Job'].all(kind, object.kind != kind) || object.spec.template.spec.containers.all(container, has(container.securityContext) && has(container.securityContext.capabilities) && has(container.securityContext.capabilities.drop) && container.securityContext.capabilities.drop.exists(c, c == 'ALL') )
+
+      message: "Workload has one or more containers without capabilities drop ALL!"
+    - expression: >
+        object.kind != 'CronJob' || object.spec.jobTemplate.spec.template.spec.containers.all(container, has(container.securityContext) && has(container.securityContext.capabilities) && has(container.securityContext.capabilities.drop) && container.securityContext.capabilities.drop.exists(c, c == 'ALL') )
+
+      message: "CronJob has one or more containers without capabilities drop ALL!"

@@ -1,0 +1,27 @@
+{{- range .Values.policyBinding }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: {{ .name }}
+spec:
+  policyName: {{ .policyName }}
+  validationActions: {{ .validationActions }}
+  matchResources:
+    {{- if .objectResource}}
+    objectSelector:
+    {{- else }}
+    namespaceSelector:
+    {{- end }}
+      matchLabels:
+        {{ .labelKeyName }}: {{ .labelValue }}
+    {{- if .resourceRules }}
+    resourceRules:
+      {{- range .resourceRules }}
+      - apiGroups: {{ toYaml .apiGroups | nindent 10 }}
+        apiVersions: {{ toYaml .apiVersions | nindent 10 }}
+        operations: {{ toYaml .operations | nindent 10 }}
+        resources: {{ toYaml .resources | nindent 10 }}
+      {{- end }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,91 @@
+# Default values for sec-policies.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+# name: binding name, should be unique in Kubernetes
+# policyName: from policies directory
+# validationActions: "[Deny]" or "[Warn, Audit]"
+# objectResource: true to use per label configuration
+# Or remove it to use namespaceSelector 
+#   which will check for all resources in that namespace with matching labels
+# labelKeyName: security/policy
+# labelValue: 
+#   enforce - all policies in deny mode
+#   audit   - all policies in warning and audit mode - NO Blocks
+policyBinding:
+  - name: deny-immutability-container-filesystem-enforce
+    policyName: "kubescape-c-0017-deny-resources-with-mutable-container-filesystem"
+    validationActions: "[Deny]"
+    objectResource: true
+    labelKeyName: security/policy
+    labelValue: enforce
+  - name: deny-privileged-container-enforce
+    policyName: "kubescape-c-0057-privileged-container-denied"
+    validationActions: "[Deny]"
+    objectResource: true
+    labelKeyName: security/policy
+    labelValue: enforce
+  - name: deny-if-not-drop-all-capabilities-enforce
+    policyName: "as-control-001-should-drop-all-capabilities"
+    validationActions: "[Deny]"
+    objectResource: true
+    labelKeyName: security/policy
+    labelValue: enforce
+  - name: deny-privilege-escalation-enforce
+    policyName: "pss-privilege-escalation.vap-library.com"
+    validationActions: "[Deny]"
+    objectResource: true
+    labelKeyName: security/policy
+    labelValue: enforce
+  - name: deny-running-as-non-root-user-enforce
+    policyName: "pss-running-as-non-root-user.vap-library.com"
+    validationActions: "[Deny]"
+    objectResource: true
+    labelKeyName: security/policy
+    labelValue: enforce
+  - name: deny-running-as-non-root-enforce
+    policyName: "pss-running-as-non-root.vap-library.com"
+    validationActions: "[Deny]"
+    objectResource: true
+    labelKeyName: security/policy
+    labelValue: enforce
+  - name: audit-immutability-container-filesystem-enforce
+    policyName: "kubescape-c-0017-deny-resources-with-mutable-container-filesystem"
+    validationActions: "[Warn, Audit]"
+    objectResource: true
+    labelKeyName: security/policy
+    labelValue: audit
+  - name: audit-privileged-container-enforce
+    policyName: "kubescape-c-0057-privileged-container-denied"
+    validationActions: "[Warn, Audit]"
+    objectResource: true
+    labelKeyName: security/policy
+    labelValue: audit
+  - name: audit-if-not-drop-all-capabilities-enforce
+    policyName: "as-control-001-should-drop-all-capabilities"
+    validationActions: "[Warn, Audit]"
+    objectResource: true
+    labelKeyName: security/policy
+    labelValue: audit
+  - name: audit-privilege-escalation-enforce
+    policyName: "pss-privilege-escalation.vap-library.com"
+    validationActions: "[Warn, Audit]"
+    objectResource: true
+    labelKeyName: security/policy
+    labelValue: audit
+  - name: audit-running-as-non-root-user-enforce
+    policyName: "pss-running-as-non-root-user.vap-library.com"
+    validationActions: "[Warn, Audit]"
+    objectResource: true
+    labelKeyName: security/policy
+    labelValue: audit
+  - name: audit-running-as-non-root-enforce
+    policyName: "pss-running-as-non-root.vap-library.com"
+    validationActions: "[Warn, Audit]"
+    objectResource: true
+    labelKeyName: security/policy
+    labelValue: audit

@@ -1,14 +1,16 @@
-name: push
+name: push-main
 
 on:
   push:
-    branches-ignore:
+    branches:
       - "main"
 
 jobs:
   golangci:
     name: lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - name: Install Helm
@@ -18,7 +20,7 @@ jobs:
         run: |
           helm lint ./charts/sec-policies
           helm template sec-policies ./charts/sec-policies
-    
+
       - name: Bump version
         id: bump_version 
         run: |
@@ -40,3 +42,16 @@ jobs:
             NEW_VERSION=$($SEMVER_BIN bump -i patch "$CURRENT_VERSION")
           fi
           echo $CHART_FILE $CURRENT_VERSION $COMMIT_MESSAGE $NEW_VERSION
+          yq e -i ".version = \"$NEW_VERSION\"" "$CHART_FILE"
+          yq e -i ".appVersion = \"$NEW_VERSION\"" "$CHART_FILE"
+          echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
+          echo "CHART_NAME=$CHART_NAME" >> "$GITHUB_ENV"
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> "$GITHUB_ENV"
+
+      - name: commit and push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          # Only commit and push if there are actual differences to avoid workflow failure
+          git diff-index --quiet HEAD || (git commit -m "chore: automated file update" && git push)

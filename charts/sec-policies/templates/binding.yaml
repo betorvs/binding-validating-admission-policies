@@ -4,6 +4,8 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicyBinding
 metadata:
   name: {{ .name }}
+  labels:
+    helm.sh/chart: sec-policies
 spec:
   policyName: {{ .policyName }}
   validationActions: {{ .validationActions }}

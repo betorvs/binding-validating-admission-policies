@@ -18,3 +18,17 @@ jobs:
         run: |
           helm lint ./charts/sec-policies
           helm template sec-policies ./charts/sec-policies
+    
+      - name: Bump version
+        id: bump_version 
+        run: |
+          echo "Install semver"
+          npm install semver
+          ls -la $(pwd)/node_modules/semver/bin/
+          export SEMVER_BIN=$(pwd)/node_modules/semver/bin/semver.js
+          $SEMVER_BIN
+          echo "semver installed: $SEMVER_BIN"
+          export CHART_FILE="charts/sec-policies/Char.yaml"
+          export CURRENT_VERSION=$(yq e '.version' "$CHART_FILE")
+          COMMIT_MESSAGE=$(git log --no-merges -1 --pretty=%B | head -1)
+          echo $CHART_FILE $CURRENT_VERSION $COMMIT_MESSAGE

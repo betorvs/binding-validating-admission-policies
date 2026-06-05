@@ -31,4 +31,12 @@ jobs:
           export CHART_FILE="charts/sec-policies/Chart.yaml"
           export CURRENT_VERSION=$(yq e '.version' "$CHART_FILE")
           COMMIT_MESSAGE=$(git log --no-merges -1 --pretty=%B | head -1)
-          echo $CHART_FILE $CURRENT_VERSION $COMMIT_MESSAGE
+          
+          if [[ "$COMMIT_MESSAGE" == *"feat!"* ]]; then
+            NEW_VERSION=$($SEMVER_BIN bump -i major "$CURRENT_VERSION")
+          elif [[ "$COMMIT_MESSAGE" == *"feat"* ]]; then
+            NEW_VERSION=$($SEMVER_BIN bump -i minor "$CURRENT_VERSION")
+          else
+            NEW_VERSION=$($SEMVER_BIN bump -i patch "$CURRENT_VERSION")
+          fi
+          echo $CHART_FILE $CURRENT_VERSION $COMMIT_MESSAGE $NEW_VERSION

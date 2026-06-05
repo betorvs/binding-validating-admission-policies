@@ -32,7 +32,7 @@ jobs:
           export CURRENT_VERSION=$(yq e '.version' "$CHART_FILE")
           COMMIT_MESSAGE=$(git log --no-merges -1 --pretty=%B | head -1)
           
-          if [[ "$COMMIT_MESSAGE" == *"feat!"* ]]; then
+          if [[ "$COMMIT_MESSAGE" == *"feat(major)"* ]]; then
             NEW_VERSION=$($SEMVER_BIN bump -i major "$CURRENT_VERSION")
           elif [[ "$COMMIT_MESSAGE" == *"feat"* ]]; then
             NEW_VERSION=$($SEMVER_BIN bump -i minor "$CURRENT_VERSION")
